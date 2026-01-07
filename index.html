@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Мой Мессенджер | Регистрация + Звонки + Чат</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.5s;
+        }
+        
+        /* Контейнер приложения */
+        .app-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            position: relative;
+        }
+        
+        /* Экраны (логин/регистрация/чат) */
+        .screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.5s ease;
+            background: white;
+        }
+        
+        .screen.hidden {
+            transform: translateX(100%);
+        }
+        
+        .screen.active {
+            transform: translateX(0);
+        }
+        
+        /* Экран входа */
+        .login-screen {
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .auth-form {
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .auth-form h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .auth-switch a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Экран чата */
+        .chat-screen {
+            padding: 0;
+            display: flex;
+        }
+        
+        /* Боковая панель */
+        .sidebar {
+            width: 350px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-profile {
+            padding: 25px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .user-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .user-info p {
+            color: #28a745;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .logout-btn {
+            margin-left: auto;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            color: #666;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            background: #e9ecef;
+        }
+        
+        .search-box {
+            padding: 20px;
+            background: white;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .contacts {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .contact {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .contact:hover {
+            background: #e9ecef;
+        }
+        
+        .contact.active {
+            background: #e3f2fd;
+        }
+        
+        .contact-avatar {
+            width: 45px;
+            height: 45px;
+            background: #6c757d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .online-dot {
+            width: 12px;
+            height: 12px;
+            background: #28a745;
+            border-radius: 50%;
+            border: 2px solid white;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+        
+        .contact-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .contact-info p {
+            color: #6c757d;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+        
+        /* Основная область чата */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 20px 25px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chat-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .call-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .call-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .call-btn:hover {
+            background: #218838;
+        }
+        
+        .call-btn.video {
+            background: #667eea;
+        }
+        
+        .call-btn.video:hover {
+            background: #5a67d8;
+        }
+        
+        /* Область сообщений */
+        .messages-container {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message.received {
+            align-self: flex-start;
+        }
+        
+        .message.sent {
+            align-self: flex-end;
+        }
+        
+        .message-bubble {
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .received .message-bubble {
+            background: white;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .sent .message-bubble {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message-time {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+            text-align: right;
+        }
+        
+        .message-sender {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        /* Панель ввода */
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 15px 25px;
+            border: 2px solid #e9ecef;
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .message-input:focus {
+            border-color: #667eea;
+        }
+        
+        .send-button {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .send-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .attach-button {
+            width: 50px;
+            height: 50px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 50%;
+            color: #667eea;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        /* Окно звонка */
+        .call-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .call-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .call-window {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .call-header {
+            padding: 20px;
+            background: #333;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .call-videos {
+            display: flex;
+            height: 500px;
+        }
+        
+        .video-container {
+            flex: 1;
+            position: relative;
+            background: #000;
+        }
+        
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-label {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .call-controls {
+            padding: 25px;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .call-control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .call-control-btn.accept {
+            background: #28a745;
+            color: white;
+        }
+        
+        .call-control-btn.decline {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .call-control-btn.mute {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .call-control-btn.video-toggle {
+            background: #007bff;
+            color: white;
+        }
+        
+        .call-control-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .app-container {
+                height: 95vh;
+                border-radius: 10px;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .chat-area {
+                display: none;
+            }
+            
+            .chat-area.active {
+                display: flex;
+            }
+            
+            .contacts {
+                padding: 10px;
+            }
+            
+            .contact {
+                padding: 12px;
+            }
+            
+            .call-videos {
+                flex-direction: column;
+                height: 400px;
+            }
+            
+            .video-container {
+                height: 50%;
+            }
+        }
+        
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            transform: translateX(150%);
+            transition: transform 0.3s;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: #dc3545;
+        }
+        
+        .notification.warning {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        /* Загрузка */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 1002;
+        }
+        
+        .loading.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Главный контейнер -->
+    <div class="app-container">
+        
+        <!-- Экран входа -->
+        <div class="screen login-screen active" id="loginScreen">
+            <div class="auth-form">
+                <h2>Вход в Мессенджер</h2>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="ваш@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="Ваш пароль" required>
+                </div>
+                <button class="btn" id="loginBtn">Войти</button>
+                <div class="auth-switch">
+                    Нет аккаунта? <a id="showRegister">Зарегистрироваться</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Экран регистрации -->
+        <div class="screen register-screen hidden" id="registerScreen">
+            <div class="auth-form">
+                <h2>Регистрация</h2>
+                <div class="form-group">
+                    <label>Имя</label>
+                    <input type="text" id="regName" placeholder="Ваше имя" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="ваш@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="regPassword" placeholder="Минимум 6 символов" required>
+                </div>
+                <div class="form-group">
+                    <label>Подтвердите пароль</label>
+                    <input type="password" id="regConfirmPassword" placeholder="Повторите пароль" required>
+                </div>
+                <button class="btn" id="registerBtn">Зарегистрироваться</button>
+                <div class="auth-switch">
+                    Уже есть аккаунт? <a id="showLogin">Войти</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Экран чата -->
+        <div class="screen chat-screen hidden" id="chatScreen">
+            <!-- Боковая панель -->
+            <div class="sidebar">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-info">
+                        <h3 id="userName">Пользователь</h3>
+                        <p><span class="online-dot"></span> онлайн</p>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" id="searchContacts" placeholder="Поиск контактов...">
+                </div>
+                
+                <div class="contacts" id="contactsList">
+                    <!-- Контакты будут добавлены через JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Область чата -->
+            <div class="chat-area" id="chatArea">
+                <div class="chat-header">
+                    <div class="chat-user">
+                        <div class="contact-avatar" id="chatContactAvatar">А</div>
+                        <div>
+                            <h3 id="chatContactName">Выберите чат</h3>
+                            <p id="chatContactStatus" style="color: #6c757d;">Начните общение</p>
+                        </div>
+                    </div>
+                    
+                    <div class="call-buttons" id="callButtons" style="display: none;">
+                        <button class="call-btn" id="audioCallBtn">
+                            <i class="fas fa-phone"></i> Аудио
+                        </button>
+                        <button class="call-btn video" id="videoCallBtn">
+                            <i class="fas fa-video"></i> Видео
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Сообщения будут здесь -->
+                    <div style="text-align: center; color: #6c757d; margin-top: 50px;">
+                        <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 20px;"></i>
+                        <h3>Выберите контакт для общения</h3>
+                        <p>Начните диалог, отправив первое сообщение</p>
+                    </div>
+                </div>
+                
+                <div class="input-area" id="inputArea" style="display: none;">
+                    <button class="attach-button" id="attachBtn">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input type="text" class="message-input" id="messageInput" 
+                           placeholder="Введите сообщение...">
+                    <button class="send-button" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Окно звонка -->
+    <div class="call-modal" id="callModal">
+        <div class="call-window">
+            <div class="call-header">
+                <div>
+                    <h3 id="callTitle">Входящий звонок</h3>
+                    <p id="callStatus">Соединение...</p>
+                </div>
+                <div id="callTimer">00:00</div>
+            </div>
+            
+            <div class="call-videos">
+                <div class="video-container">
+                    <video id="remoteVideo" autoplay playsinline></video>
+                    <div class="video-label" id="remoteName">Другой участник</div>
+                </div>
+                <div class="video-container">
+                    <video id="localVideo" autoplay playsinline muted></video>
+                    <div class="video-label">Вы</div>
+                </div>
+            </div>
+            
+            <div class="call-controls">
+                <button class="call-control-btn mute" id="muteBtn" title="Микрофон">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="call-control-btn video-toggle" id="videoToggleBtn" title="Камера">
+                    <i class="fas fa-video"></i>
+                </button>
+                <button class="call-control-btn decline" id="endCallBtn" title="Завершить">
+                    <i class="fas fa-phone-slash"></i>
+                </button>
+                <button class="call-control-btn accept" id="acceptCallBtn" title="Ответить" style="display: none;">
+                    <i class="fas fa-phone"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Уведомления -->
+    <div class="notification" id="notification">
+        <span id="notificationText">Уведомление</span>
+    </div>
+    
+    <!-- Загрузка -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // ============ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ============
+        let currentUser = null;
+        let selectedContact = null;
+        let messages = {};
+        let contacts = [];
+        let callActive = false;
+        let callStartTime = null;
+        let callTimerInterval = null;
+        let localStream = null;
+        let peerConnection = null;
+        
+        // ============ ИНИЦИАЛИЗАЦИЯ ============
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMockData();
+            setupEventListeners();
+            checkAuth();
+        });
+        
+        // ============ МОК ДАННЫЕ (в реальном приложении будет сервер) ============
+        function loadMockData() {
+            contacts = [
+                { id: 1, name: "Анна", email: "anna@example.com", avatar: "А", online: true, lastSeen: "только что" },
+                { id: 2, name: "Иван", email: "ivan@example.com", avatar: "И", online: true, lastSeen: "2 мин назад" },
+                { id: 3, name: "Мария", email: "maria@example.com", avatar: "М", online: false, lastSeen: "2 часа назад" },
+                { id: 4, name: "Алексей", email: "alex@example.com", avatar: "А", online: true, lastSeen: "5 мин назад" },
+                { id: 5, name: "Елена", email: "elena@example.com", avatar: "Е", online: false, lastSeen: "вчера" },
+                { id: 6, name: "Дмитрий", email: "dmitry@example.com", avatar: "Д", online: true, lastSeen: "только что" }
+            ];
+            
+            // История сообщений
+            messages = {
+                1: [
+                    { id: 1, text: "Привет! Как дела?", senderId: 1, time: "10:30", date: "2024-01-15", type: "text" },
+                    { id: 2, text: "Привет! Всё отлично, спасибо!", senderId: 0, time: "10:31", date: "2024-01-15", type: "text" },
+                    { id: 3, text: "Что планируешь на выходные?", senderId: 1, time: "10:32", date: "2024-01-15", type: "text" }
+                ],
+                2: [
+                    { id: 1, text: "Отправил тебе документы", senderId: 2, time: "09:15", date: "2024-01-14", type: "text" },
+                    { id: 2, text: "Получил, спасибо!", senderId: 0, time: "09:20", date: "2024-01-14", type: "text" }
+                ],
+                4: [
+                    { id: 1, text: "Давай созвонимся завтра", senderId: 0, time: "18:45", date: "2024-01-13", type: "text" },
+                    { id: 2, text: "Хорошо, в 15:00 подойдет?", senderId: 4, time: "19:00", date: "2024-01-13", type: "text" }
+                ]
+            };
+        }
+        
+        // ============ ОБРАБОТЧИКИ СОБЫТИЙ ============
+        function setupEventListeners() {
+            // Навигация между экранами
+            document.getElementById('showRegister').addEventListener('click', showRegisterScreen);
+            document.getElementById('showLogin').addEventListener('click', showLoginScreen);
+            
+            // Кнопки авторизации
+            document.getElementById('loginBtn').addEventListener('click', login);
+            document.getElementById('registerBtn').addEventListener('click', register);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Поиск контактов
+            document.getElementById('searchContacts').addEventListener('input', searchContacts);
+            
+            // Сообщения
+            document.getElementById('sendBtn').addEventListener('click', sendMessage);
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+            
+            // Вложения
+            document.getElementById('attachBtn').addEventListener('click', attachFile);
+            
+            // Звонки
+            document.getElementById('audioCallBtn').addEventListener('click', () => startCall(false));
+            document.getElementById('videoCallBtn').addEventListener('click', () => startCall(true));
+            document.getElementById('endCallBtn').addEventListener('click', endCall);
+            document.getElementById('acceptCallBtn').addEventListener('click', acceptCall);
+            document.getElementById('muteBtn').addEventListener('click', toggleMute);
+            document.getElementById('videoToggleBtn').addEventListener('click', toggleVideo);
+            
+            // Имитация входящих звонков
+            simulateIncomingCalls();
+        }
+        
+        // ============ АВТОРИЗАЦИЯ ============
+        function checkAuth() {
+            const savedUser = localStorage.getItem('messenger_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showChatScreen();
+                updateUserProfile();
+                renderContacts();
+            }
+        }
+        
+        function showRegisterScreen() {
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('registerScreen').classList.remove('hidden');
+            document.getElementById('registerScreen').classList.add('active');
+        }
+        
+        function showLoginScreen() {
+            document.getElementById('registerScreen').classList.remove('active');
+            document.getElementById('registerScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('loginScreen').classList.add('active');
+        }
+        
+        function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (!email || !password) {
+                showNotification('Введите email и пароль', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            // Имитация запроса к серверу
+            setTimeout(() => {
+                // Проверяем мок данных
+                const mockUsers = [
+                    { id: 0, name: "Тестовый Пользователь", email: "test@test.com", password: "123456", avatar: "Т" },
+                    { id: 100, name: "Администратор", email: "admin@admin.com", password: "admin123", avatar: "А" }
+                ];
+                
+                const user = mockUsers.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    // Сохраняем пользователя
+                    currentUser = {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                        avatar: user.avatar
+                    };
+                    
+                    localStorage.setItem('messenger_user', JSON.stringify(currentUser));
+                    
+                    showChatScreen();
+                    updateUserProfile();
+                    renderContacts();
+                    
+                    showNotification('Успешный вход!', 'success');
+                } else {
+                    showNotification('Неверный email или пароль', 'error');
+                }
+                
+                showLoading(false);
+            }, 1000);
+        }
+        
+        function register() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            const confirmPassword = document.getElementById('regConfirmPassword').value.trim();
+            
+            if (!name || !email || !password || !confirmPassword) {
+                showNotification('Заполните все поля', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showNotification('Пароль должен быть не менее 6 символов', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showNotification('Пароли не совпадают', 'error');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showNotification('Введите корректный email', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            // Имитация регистрации
+            setTimeout(() => {
+                // Проверяем, не занят ли email
+                const mockUsers = [
+                    { email: "test@test.com" },
+                    { email: "admin@admin.com" }
+                ];
+                
+                if (mockUsers.some(u => u.email === email)) {
+                    showNotification('Пользователь с таким email уже существует', 'error');
+                    showLoading(false);
+                    return;
+                }
+                
+                // Создаем нового пользователя
+                currentUser = {
+                    id: Math.floor(Math.random() * 1000) + 1000,
+                    name: name,
+                    email: email,
+                    avatar: name.charAt(0).toUpperCase()
+                };
+                
+                localStorage.setItem('messenger_user', JSON.stringify(currentUser));
+                
+                showChatScreen();
+                updateUserProfile();
+                renderContacts();
+                
+                showNotification('Регистрация успешна!', 'success');
+                showLoading(false);
+            }, 1500);
+        }
+        
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                currentUser = null;
+                localStorage.removeItem('messenger_user');
+                endCall();
+                showLoginScreen();
+                showNotification('Вы вышли из системы', 'warning');
+            }
+        }
+        
+        // ============ ЧАТ ============
+        function renderContacts() {
+            const contactsList = document.getElementById('contactsList');
+            contactsList.innerHTML = '';
+            
+            contacts.forEach(contact => {
+                const contactDiv = document.createElement('div');
+                contactDiv.className = 'contact';
+                contactDiv.dataset.contactId = contact.id;
+                
+                // Последнее сообщение
+                const contactMessages = messages[contact.id] || [];
+                const lastMessage = contactMessages.length > 0 
+                    ? contactMessages[contactMessages.length - 1].text 
+                    : 'Нет сообщений';
+                
+                contactDiv.innerHTML = `
+                    <div class="contact-avatar">
+                        ${contact.avatar}
+                        ${contact.online ? '<div class="online-dot"></div>' : ''}
+                    </div>
+                    <div class="contact-info">
+                        <h4>${contact.name}</h4>
+                        <p>${lastMessage}</p>
+                    </div>
+                `;
+                
+                contactDiv.addEventListener('click', () => selectContact(contact));
+                contactsList.appendChild(contactDiv);
+            });
+        }
+        
+        function selectContact(contact) {
+            selectedContact = contact;
+            
+            // Обновляем активный контакт в списке
+            document.querySelectorAll('.contact').forEach(c => {
+                c.classList.remove('active');
+                if (parseInt(c.dataset.contactId) === contact.id) {
+                    c.classList.add('active');
+                }
+            });
+            
+            // Обновляем заголовок чата
+            document.getElementById('chatContactName').textContent = contact.name;
+            document.getElementById('chatContactAvatar').textContent = contact.avatar;
+            document.getElementById('chatContactStatus').textContent = contact.online 
+                ? '● онлайн' 
+                : `был(а) ${contact.lastSeen}`;
+            document.getElementById('chatContactStatus').style.color = contact.online ? '#28a745' : '#6c757d';
+            
+            // Показываем кнопки звонка и поле ввода
+            document.getElementById('callButtons').style.display = 'flex';
+            document.getElementById('inputArea').style.display = 'flex';
+            
+            // Загружаем сообщения
+            loadMessages();
+        }
+        
+        function loadMessages() {
+            if (!selectedContact) return;
+            
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.innerHTML = '';
+            
+            const contactMessages = messages[selectedContact.id] || [];
+            
+            if (contactMessages.length === 0) {
+                messagesContainer.innerHTML = `
+                    <div style="text-align: center; color: #6c757d; margin-top: 50px;">
+                        <i class="fas fa-comment-slash" style="font-size: 48px; margin-bottom: 20px;"></i>
+                        <h3>Нет сообщений</h3>
+                        <p>Начните диалог, отправив первое сообщение</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            contactMessages.forEach(msg => {
+                const isSent = msg.senderId === 0; // 0 = текущий пользователь
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+                
+                messageDiv.innerHTML = `
+                    ${!isSent ? `<div class="message-sender">${selectedContact.name}</div>` : ''}
+                    <div class="message-bubble">${msg.text}</div>
+                    <div class="message-time">${msg.time}</div>
+                `;
+                
+                messagesContainer.appendChild(messageDiv);
+            });
+            
+            // Прокрутка вниз
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function sendMessage() {
+            if (!selectedContact || !currentUser) return;
+            
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            // Создаем новое сообщение
+            const newMessage = {
+                id: Date.now(),
+                text: text,
+                senderId: 0, // 0 = текущий пользователь
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                date: new Date().toISOString().split('T')[0],
+                type: 'text'
+            };
+            
+            // Добавляем в историю
+            if (!messages[selectedContact.id]) {
+                messages[selectedContact.id] = [];
+            }
+            messages[selectedContact.id].push(newMessage);
+            
+            // Отображаем сообщение
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message sent';
+            messageDiv.innerHTML = `
+                <div class="message-bubble">${text}</div>
+                <div class="message-time">${newMessage.time}</div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            
+            // Очищаем поле ввода
+            input.value = '';
+            
+            // Автоматический ответ (имитация)
+            setTimeout(() => {
+                const replies = [
+                    "Принято! 👍",
+                    "Понятно, спасибо!",
+                    "Интересно, расскажи подробнее",
+                    "Я тоже так думаю",
+                    "Согласен с тобой полностью",
+                    "Отличная идея!",
+                    "Давай обсудим это позже"
+                ];
+                
+                const autoReply = {
+                    id: Date.now() + 1,
+                    text: replies[Math.floor(Math.random() * replies.length)],
+                    senderId: selectedContact.id,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    date: new Date().toISOString().split('T')[0],
+                    type: 'text'
+                };
+                
+                messages[selectedContact.id].push(autoReply);
+                
+                const replyDiv = document.createElement('div');
+                replyDiv.className = 'message received';
+                replyDiv.innerHTML = `
+                    <div class="message-sender">${selectedContact.name}</div>
+                    <div class="message-bubble">${autoReply.text}</div>
+                    <div class="message-time">${autoReply.time}</div>
+                `;
+                messagesContainer.appendChild(replyDiv);
+                
+                // Прокрутка вниз
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Обновляем последнее сообщение в списке контактов
+                updateContactLastMessage(selectedContact.id, autoReply.text);
+                
+            }, 1000 + Math.random() * 2000);
+            
+            // Прокрутка вниз
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Обновляем последнее сообщение в списке контактов
+            updateContactLastMessage(selectedContact.id, text);
+        }
+        
+        function updateContactLastMessage(contactId, message) {
+            const contactElement = document.querySelector(`.contact[data-contact-id="${contactId}"]`);
+            if (contactElement) {
+                const messageElement = contactElement.querySelector('.contact-info p');
+                if (messageElement) {
+                    messageElement.textContent = message;
+                }
+            }
+        }
+        
+        function searchContacts() {
+            const searchTerm = document.getElementById('searchContacts').value.toLowerCase();
+            const contactElements = document.querySelectorAll('.contact');
+            
+            contactElements.forEach(contact => {
+                const contactName = contact.querySelector('h4').textContent.toLowerCase();
+                if (contactName.includes(searchTerm)) {
+                    contact.style.display = 'flex';
+                } else {
+                    contact.style.display = 'none';
+                }
+            });
+        }
+        
+        function attachFile() {
+            // Создаем скрытый input для выбора файла
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*,video/*,.pdf,.doc,.docx';
+            
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // Проверяем размер (макс 10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    showNotification('Файл слишком большой (макс 10MB)', 'error');
+                    return;
+                }
+                
+                // Читаем файл как Data URL
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const fileType = getFileType(file.type);
+                    const icon = getFileIcon(fileType);
+                    
+                    // Создаем сообщение с файлом
+                    const fileMessage = {
+                        id: Date.now(),
+                        text: `${icon} ${file.name}`,
+                        senderId: 0,
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        date: new Date().toISOString().split('T')[0],
+                        type: 'file',
+                        file: {
+                            name: file.name,
+                            type: fileType,
+                            size: formatFileSize(file.size),
+                            url: event.target.result
+                        }
+                    };
+                    
+                    // Добавляем в историю
+                    if (!messages[selectedContact.id]) {
+                        messages[selectedContact.id] = [];
+                    }
+                    messages[selectedContact.id].push(fileMessage);
+                    
+                    // Отображаем
+                    const messagesContainer = document.getElementById('messagesContainer');
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message sent';
+                    
+                    let fileContent = '';
+                    if (file.type.startsWith('image/')) {
+                        fileContent = `<img src="${event.target.result}" style="max-width: 200px; border-radius: 10px; margin-bottom: 10px;"><br>`;
+                    }
+                    
+                    messageDiv.innerHTML = `
+                        <div class="message-bubble">
+                            ${fileContent}
+                            <strong>${icon} ${file.name}</strong><br>
+                            <small>${formatFileSize(file.size)}</small>
+                        </div>
+                        <div class="message-time">${fileMessage.time}</div>
+                    `;
+                    
+                    messagesContainer.appendChild(messageDiv);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    
+                    // Автоответ
+                    setTimeout(() => {
+                        const reply = {
+                            id: Date.now() + 1,
+                            text: 'Файл получен! 📥',
+                            senderId: selectedContact.id,
+                            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                            date: new Date().toISOString().split('T')[0],
+                            type: 'text'
+                        };
+                        
+                        messages[selectedContact.id].push(reply);
+                        
+                        const replyDiv = document.createElement('div');
+                        replyDiv.className = 'message received';
+                        replyDiv.innerHTML = `
+                            <div class="message-sender">${selectedContact.name}</div>
+                            <div class="message-bubble">${reply.text}</div>
+                            <div class="message-time">${reply.time}</div>
+                        `;
+                        messagesContainer.appendChild(replyDiv);
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    }, 1000);
+                };
+                
+                reader.readAsDataURL(file);
+            };
+            
+            fileInput.click();
+        }
+        
+        // ============ ЗВОНКИ (WebRTC имитация) ============
+        async function startCall(isVideo = true) {
+            if (!selectedContact) {
+                showNotification('Выберите контакт для звонка', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Получаем доступ к медиаустройствам
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: isVideo,
+                    audio: true
+                });
+                
+                // Показываем локальное видео
+                const localVideo = document.getElementById('localVideo');
+                localVideo.srcObject = localStream;
+                
+                // Настройка модального окна звонка
+                document.getElementById('callTitle').textContent = 
+                    `Исходящий ${isVideo ? 'видео' : 'аудио'} звонок`;
+                document.getElementById('callStatus').textContent = 'Набор номера...';
+                document.getElementById('remoteName').textContent = selectedContact.name;
+                document.getElementById('acceptCallBtn').style.display = 'none';
+                document.getElementById('endCallBtn').style.display = 'flex';
+                
+                // Показываем окно звонка
+                document.getElementById('callModal').classList.add('active');
+                
+                // Имитация набора номера
+                setTimeout(() => {
+                    showLoading(false);
+                    
+                    // Имитация ответа на звонок
+                    setTimeout(() => {
+                        document.getElementById('callStatus').textContent = 'Разговор...';
+                        startCallTimer();
+                        showNotification(`${selectedContact.name} ответил(а) на звонок`, 'success');
+                        
+                        // Имитация удаленного видео (в реальном приложении - WebRTC)
+                        simulateRemoteVideo(isVideo);
+                    }, 2000);
+                    
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Ошибка доступа к камере/микрофону:', error);
+                showLoading(false);
+                showNotification('Не удалось получить доступ к камере/микрофону', 'error');
+            }
+        }
+        
+        function simulateIncomingCalls() {
+            // Имитация входящих звонков каждые 60 секунд (для демо)
+            setInterval(() => {
+                if (!callActive && currentUser && Math.random() > 0.7) {
+                    const randomContact = contacts[Math.floor(Math.random() * contacts.length)];
+                    
+                    document.getElementById('callTitle').textContent = `Входящий звонок от ${randomContact.name}`;
+                    document.getElementById('callStatus').textContent = 'Звонок...';
+                    document.getElementById('remoteName').textContent = randomContact.name;
+                    document.getElementById('acceptCallBtn').style.display = 'flex';
+                    document.getElementById('endCallBtn').style.display = 'none';
+                    
+                    document.getElementById('callModal').classList.add('active');
+                    
+                    // Автоматическое отклонение через 30 секунд
+                    setTimeout(() => {
+                        if (document.getElementById('callModal').classList.contains('active') && 
+                            document.getElementById('acceptCallBtn').style.display !== 'none') {
+                            endCall();
+                            showNotification(`Пропущенный звонок от ${randomContact.name}`, 'warning');
+                        }
+                    }, 30000);
+                }
+            }, 60000);
+        }
+        
+        async function acceptCall() {
+            showLoading(true);
+            
+            try {
+                // Получаем доступ к медиаустройствам
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
+                });
+                
+                const localVideo = document.getElementById('localVideo');
+                localVideo.srcObject = localStream;
+                
+                document.getElementById('callStatus').textContent = 'Разговор...';
+                document.getElementById('acceptCallBtn').style.display = 'none';
+                document.getElementById('endCallBtn').style.display = 'flex';
+                
+                showLoading(false);
+                startCallTimer();
+                
+                // Имитация удаленного видео
+                simulateRemoteVideo(true);
+                
+                showNotification('Вы ответили на звонок', 'success');
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showLoading(false);
+                showNotification('Не удалось принять звонок', 'error');
+                endCall();
+            }
+        }
+        
+        function endCall() {
+            // Останавливаем медиапоток
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            
+            // Очищаем видео элементы
+            document.getElementById('localVideo').srcObject = null;
+            document.getElementById('remoteVideo').srcObject = null;
+            
+            // Скрываем окно звонка
+            document.getElementById('callModal').classList.remove('active');
+            
+            // Сбрасываем таймер
+            if (callTimerInterval) {
+                clearInterval(callTimerInterval);
+                callTimerInterval = null;
+            }
+            
+            document.getElementById('callTimer').textContent = '00:00';
+            callStartTime = null;
+            callActive = false;
+        }
+        
+        function toggleMute() {
+            if (localStream) {
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    const btn = document.getElementById('muteBtn');
+                    btn.innerHTML = audioTrack.enabled 
+                        ? '<i class="fas fa-microphone"></i>' 
+                        : '<i class="fas fa-microphone-slash"></i>';
+                    
+                    showNotification(audioTrack.enabled ? 'Микрофон включен' : 'Микрофон выключен', 'warning');
+                }
+            }
+        }
+        
+        function toggleVideo() {
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    const btn = document.getElementById('videoToggleBtn');
+                    btn.innerHTML = videoTrack.enabled 
+                        ? '<i class="fas fa-video"></i>' 
+                        : '<i class="fas fa-video-slash"></i>';
+                    
+                    showNotification(videoTrack.enabled ? 'Камера включена' : 'Камера выключена', 'warning');
+                }
+            }
+        }
+        
+        function simulateRemoteVideo(isVideo) {
+            // В реальном приложении здесь будет WebRTC соединение
+            // Для демо просто показываем черный экран
+            if (isVideo) {
+                // Можно добавить заглушку видео
+                const remoteVideo = document.getElementById('remoteVideo');
+                // В реальном приложении: remoteVideo.srcObject = remoteStream;
+            }
+        }
+        
+        function startCallTimer() {
+            callStartTime = new Date();
+            document.getElementById('callTimer').textContent = '00:00';
+            
+            callTimerInterval = setInterval(() => {
+                const now = new Date();
+                const diff = Math.floor((now - callStartTime) / 1000);
+                const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
+                const seconds = (diff % 60).toString().padStart(2, '0');
+                document.getElementById('callTimer').textContent = `${minutes}:${seconds}`;
+            }, 1000);
+        }
+        
+        // ============ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ============
+        function showChatScreen() {
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('registerScreen').classList.remove('active');
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('registerScreen').classList.add('hidden');
+            document.getElementById('chatScreen').classList.remove('hidden');
+            document.getElementById('chatScreen').classList.add('active');
+        }
+        
+        function updateUserProfile() {
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.name;
+                document.getElementById('userAvatar').textContent = currentUser.avatar;
+            }
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const text = document.getElementById('notificationText');
+            
+            text.textContent = message;
+            notification.className = 'notification';
+            notification.classList.add(type);
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+        
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function getFileType(mimeType) {
+            if (mimeType.startsWith('image/')) return 'image';
+            if (mimeType.startsWith('video/')) return 'video';
+            if (mimeType.includes('pdf')) return 'pdf';
+            if (mimeType.includes('word') || mimeType.includes('document')) return 'doc';
+            return 'file';
+        }
+        
+        function getFileIcon(fileType) {
+            const icons = {
+                image: '🖼️',
+                video: '🎬',
+                pdf: '📄',
+                doc: '📝',
+                file: '📎'
+            };
+            return icons[fileType] || '📎';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' байт';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
+        }
+        
+        // ============ ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ РЕАЛЬНОГО ПРИЛОЖЕНИЯ ============
+        // В реальном приложении добавьте:
+        // 1. WebSocket для реального времени
+        // 2. WebRTC для звонков
+        // 3. Серверную часть для хранения данных
+        // 4. Базу данных для пользователей и сообщений
+        // 5. Шифрование сообщений
+        
+        console.log('Мессенджер загружен! Функции:');
+        console.log('1. Регистрация и вход по email');
+        console.log('2. Чат в реальном времени (имитация)');
+        console.log('3. Аудио/видео звонки (имитация WebRTC)');
+        console.log('4. Отправка файлов');
+        console.log('5. Поиск контактов');
+        console.log('6. Онлайн статусы');
+        
+        // Автозаполнение для тестирования
+        document.getElementById('loginEmail').value = 'test@test.com';
+        document.getElementById('loginPassword').value = '123456';
+    </script>
+</body>
+</html>
